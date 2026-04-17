@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sigma Sahur Studio 3 Pro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-dark bg-dark px-3">
+    <span class="navbar-brand fw-bold">Sigma Sahur Studio 3 Pro</span>
+</nav>
+
+<!-- Alerte globale -->
+<div id="alertContainer" class="container-fluid mt-2"></div>
+
+<!-- Onglets -->
+<div class="container-fluid mt-2">
+    <ul class="nav nav-tabs" id="mainTabs">
+        <li class="nav-item">
+            <a class="nav-link active" data-bs-toggle="tab" href="#photographes"
+               onclick="loadPhotographes()">Photographes</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#clients"
+               onclick="loadClients()">Clients</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#seances"
+               onclick="loadSeances()">Séances</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#statistiques"
+               onclick="loadStatistiques()">Statistiques</a>
+        </li>
+    </ul>
+
+    <div class="tab-content mt-3">
+
+        <!-- ══════════════════════ PHOTOGRAPHES ══════════════════════ -->
+        <div class="tab-pane fade show active" id="photographes">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="mb-0">Photographes</h4>
+                <button class="btn btn-primary" onclick="openCreatePhotographe()">+ Nouveau photographe</button>
+            </div>
+            <table class="table table-hover table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Nom</th><th>Email</th><th>Spécialités</th><th>Statut</th><th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="photographesTbody">
+                    <tr><td colspan="5" class="text-center text-muted">Chargement...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ══════════════════════ CLIENTS ══════════════════════ -->
+        <div class="tab-pane fade" id="clients">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="mb-0">Clients</h4>
+                <button class="btn btn-primary" onclick="openCreateClient()">+ Nouveau client</button>
+            </div>
+            <table class="table table-hover table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Nom / Raison sociale</th><th>Adresse</th><th>Email</th><th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="clientsTbody">
+                    <tr><td colspan="4" class="text-center text-muted">Chargement...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ══════════════════════ SÉANCES ══════════════════════ -->
+        <div class="tab-pane fade" id="seances">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="mb-0">Séances</h4>
+                <div class="d-flex gap-2 align-items-center">
+                    <div class="btn-group" role="group" aria-label="Mode d'affichage">
+                        <button type="button" id="btnVueListe"
+                                class="btn btn-sm btn-dark active"
+                                onclick="setVueListe()">Liste</button>
+                        <button type="button" id="btnVueCalendrier"
+                                class="btn btn-sm btn-outline-dark"
+                                onclick="setVueCalendrier()">Calendrier</button>
+                    </div>
+                    <button class="btn btn-primary btn-sm" onclick="openCreateSeance()">+ Nouvelle séance</button>
+                </div>
+            </div>
+            <div class="row mb-3 g-2">
+                <div class="col-auto">
+                    <select id="filtreStatut" class="form-select form-select-sm" onchange="loadSeances()">
+                        <option value="">Tous les statuts</option>
+                        <option value="PLANIFIEE">Planifiée</option>
+                        <option value="CONFIRMEE">Confirmée</option>
+                        <option value="TERMINEE">Terminée</option>
+                        <option value="ANNULEE">Annulée</option>
+                    </select>
+                </div>
+            </div>
+            <div id="seancesListeView">
+                <table class="table table-hover table-striped">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Date</th><th>Horaire</th><th>Lieu</th><th>Type</th>
+                            <th>Photographe</th><th>Client</th><th>Statut</th><th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="seancesTbody">
+                        <tr><td colspan="8" class="text-center text-muted">Chargement...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="seancesCalendrierView" style="display:none;">
+                <div id="seancesCalendar"></div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════ STATISTIQUES ══════════════════════ -->
+        <div class="tab-pane fade" id="statistiques">
+            <h4 class="mb-3">Statistiques</h4>
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">Top 5 — Nombre de séances réalisées</div>
+                        <div class="card-body p-0">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr><th>#</th><th>Photographe</th><th>Séances</th></tr>
+                                </thead>
+                                <tbody id="statsCountTbody">
+                                    <tr><td colspan="3" class="text-center text-muted">Chargement...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">Top 5 — Durée cumulée des séances</div>
+                        <div class="card-body p-0">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr><th>#</th><th>Photographe</th><th>Durée totale</th></tr>
+                                </thead>
+                                <tbody id="statsDureeTbody">
+                                    <tr><td colspan="3" class="text-center text-muted">Chargement...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /tab-content -->
+</div><!-- /container -->
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MODALES
+═══════════════════════════════════════════════════════════════ -->
+
+<!-- Modale Photographe -->
+<div class="modal fade" id="photographeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="photographeModalTitle">Photographe</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="photographeForm">
+                    <div class="mb-3">
+                        <label class="form-label">Nom *</label>
+                        <input type="text" id="photNom" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email *</label>
+                        <input type="email" id="photEmail" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Spécialités *</label>
+                        <div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" name="specialite"
+                                       id="specReportage" value="REPORTAGE">
+                                <label class="form-check-label" for="specReportage">Reportage</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" name="specialite"
+                                       id="specMariage" value="MARIAGE_ET_FETES">
+                                <label class="form-check-label" for="specMariage">Mariage et fêtes</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" name="specialite"
+                                       id="specFamille" value="FAMILLE">
+                                <label class="form-check-label" for="specFamille">Famille</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-primary" onclick="savePhotographe()">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modale confirmation désactivation -->
+<div class="modal fade" id="confirmDesactivationModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmation de désactivation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="confirmDesactivationBody"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" id="confirmDesactivationBtn" class="btn btn-warning">
+                    Confirmer et annuler les séances
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modale Client -->
+<div class="modal fade" id="clientModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="clientModalTitle">Client</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="clientForm">
+                    <div class="mb-3">
+                        <label class="form-label">Nom *</label>
+                        <input type="text" id="clientNom" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Prénom <small class="text-muted">(particulier)</small></label>
+                        <input type="text" id="clientPrenom" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Raison sociale <small class="text-muted">(entreprise)</small></label>
+                        <input type="text" id="clientRaisonSociale" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Adresse *</label>
+                        <input type="text" id="clientAdresse" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email *</label>
+                        <input type="email" id="clientEmail" class="form-control" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-primary" onclick="saveClient()">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modale Séance -->
+<div class="modal fade" id="seanceModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="seanceModalTitle">Séance</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="seanceForm">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Date *</label>
+                            <input type="date" id="seanceDate" class="form-control" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Heure de début *</label>
+                            <input type="time" id="seanceHeure" class="form-control" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Durée (min) *</label>
+                            <input type="number" id="seanceDuree" class="form-control" min="15" step="15" value="60" required>
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label">Lieu *</label>
+                            <input type="text" id="seanceLieu" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Type *</label>
+                            <select id="seanceType" class="form-select" required>
+                                <option value="REPORTAGE">Reportage</option>
+                                <option value="MARIAGE_ET_FETES">Mariage et fêtes</option>
+                                <option value="FAMILLE">Famille</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Photographe *</label>
+                            <select id="seancePhotographe" class="form-select" required></select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Client *</label>
+                            <select id="seanceClient" class="form-select" required></select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Prix (€) *</label>
+                            <input type="number" id="seancePrix" class="form-control" min="0" step="0.01" required>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-primary" onclick="saveSeance()">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modale changement de statut -->
+<div class="modal fade" id="statutModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Changer le statut</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="statutSeanceId">
+                <label class="form-label">Nouveau statut</label>
+                <select id="nouveauStatut" class="form-select"></select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-primary" onclick="saveStatut()">Appliquer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modale détail séance (depuis le calendrier) -->
+<div class="modal fade" id="seanceDetailModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="seanceDetailTitre">Détail de la séance</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="seanceDetailBody"></div>
+            <div class="modal-footer" id="seanceDetailFooter"></div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+<script src="js/api.js"></script>
+<script src="js/photographes.js"></script>
+<script src="js/clients.js"></script>
+<script src="js/seances.js"></script>
+<script src="js/statistiques.js"></script>
+<script>
+    // Charger les photographes au démarrage (onglet actif par défaut)
+    document.addEventListener('DOMContentLoaded', loadPhotographes);
+</script>
+</body>
+</html>
